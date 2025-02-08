@@ -6,64 +6,90 @@
     <title>WhatsApp Chatbot</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e8eff7;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        h2 {
+            color: #34568B;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            border-radius: 8px;
             margin: 20px;
-            text-align: center;
         }
-        #upload-container, #chat-container {
-            max-width: 500px;
-            margin: 20px auto;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-        }
-        #chat-container {
-            display: none;
-        }
-        .message {
-            text-align: left;
-            margin: 10px 0;
-        }
-        .user {
-            color: blue;
-        }
-        .bot {
-            color: green;
-        }
-        #user-input {
-            width: 80%;
+        input[type="file"], input[type="text"] {
+            width: calc(100% - 48px); /* Full width minus padding and borders */
             padding: 10px;
             margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
         }
-        #send-btn, #upload-btn {
-            padding: 10px;
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 2px;
             cursor: pointer;
+            border-radius: 5px;
         }
-        #status {
-            margin: 10px 0;
-            font-weight: bold;
+        #chat {
+            border: 1px solid #ddd;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f8f8;
+            height: 300px;
+            overflow-y: scroll;
+        }
+        .message {
+            padding: 5px;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+        .user {
+            text-align: right;
+            background-color: #dcf8c6;
+        }
+        .bot {
+            text-align: left;
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h2>WhatsApp Chatbot</h2>
 
-    <h2>WhatsApp Chatbot</h2>
+        <!-- Upload File Section -->
+        <div id="upload-container">
+            <h3>Upload Your WhatsApp Chat File</h3>
+            <input type="file" id="chat-file" accept=".txt">
+            <button id="upload-btn">Upload</button>
+            <p id="status"></p>
+        </div>
 
-    <!-- Upload File Section -->
-    <div id="upload-container">
-        <h3>Upload Your WhatsApp Chat File</h3>
-        <input type="file" id="chat-file" accept=".txt">
-        <button id="upload-btn">Upload</button>
-        <p id="status"></p>
-    </div>
-
-    <!-- Chat Section (Hidden Until File is Uploaded) -->
-    <div id="chat-container">
-        <h3>Chat with the AI</h3>
-        <div id="chat"></div>
-        <input type="text" id="user-input" placeholder="Type your message..." />
-        <button id="send-btn">Send</button>
+        <!-- Chat Section (Hidden Until File is Uploaded) -->
+        <div id="chat-container" style="display: none;">
+            <h3>Chat with the AI</h3>
+            <div id="chat"></div>
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button id="send-btn">Send</button>
+        </div>
     </div>
 
     <script>
