@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+        }
+        #upload-container, #chat-container {
+            max-width: 500px;
+            margin: 20px auto;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+        }
+        #chat-container {
+            display: none;
+        }
+        .message {
+            text-align: left;
+            margin: 10px 0;
+        }
+        .user {
+            color: blue;
+        }
+        .bot {
+            color: green;
+        }
+        #user-input {
+            width: 80%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        #send-btn, #upload-btn {
+            padding: 10px;
+            cursor: pointer;
+        }
+        #status {
+            margin: 10px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>WhatsApp Chatbot</h2>
+
+    <!-- Upload File Section -->
+    <div id="upload-container">
+        <h3>Upload Your WhatsApp Chat File</h3>
+        <input type="file" id="chat-file" accept=".txt">
+        <button id="upload-btn">Upload</button>
+        <p id="status"></p>
+    </div>
+
+    <!-- Chat Section (Hidden Until File is Uploaded) -->
+    <div id="chat-container">
+        <h3>Chat with the AI</h3>
+        <div id="chat"></div>
+        <input type="text" id="user-input" placeholder="Type your message..." />
+        <button id="send-btn">Send</button>
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById("chat");
+        const userInput = document.getElementById("user-input");
+        const sendBtn = document.getElementById("send-btn");
+        const uploadBtn = document.getElementById("upload-btn");
+        const chatFile = document.getElementById("chat-file");
+        const statusText = document.getElementById("status");
+        const uploadContainer = document.getElementById("upload-container");
+        const chatContainerDiv = document.getElementById("chat-container");
+
+        let isFileUploaded = false;
+
+        // Upload File Function
+        uploadBtn.addEventListener("click", async () => {
+            const file = chatFile.files[0];
+            if (!file) {
+                statusText.innerText = "Please select a file first.";
+                return;
+            }
+
+            statusText.innerText = "Uploading...";
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch("http://127.0.0.1:8000/upload_chat/", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusText.innerText = "File uploaded successfully! You can now start chatting.";
+                    isFileUploaded = true;
+                    uploadContainer.style.display = "none";
+                    chatContainerDiv.style.display = "block";
+                } else {
+                    statusText.innerText = "Error uploading file: " + data.detail;
+                }
+            } catch (error) {
+                statusText.innerText = "Upload failed. Please try again.";
+            }
+        });
+
+        // Send Message Function
+        sendBtn.addEventListener("click", async () => {
+            if (!isFileUploaded) {
+                statusText.innerText = "Please upload a chat file first.";
+                return;
+            }
+
+            const userMessage = userInput.value.trim();
+            if (!userMessage) return;
+
+            // Add user message to chat UI
+            chatContainer.innerHTML += `<div class="message user"><b>You:</b> ${userMessage}</div>`;
+
+            // Prepare request payload
+            const requestData = {
+                user_message: userMessage
+            };
+
+            // Send request to FastAPI
+            try {
+                const response = await fetch("http://127.0.0.1:8000/chat/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(requestData)
+                });
+
+                const data = await response.json();
+
+                // Add AI response to chat UI
+                chatContainer.innerHTML += `<div class="message bot"><b>Bot:</b> ${data.bot_response}</div>`;
+
+                // Clear input field
+                userInput.value = "";
+            } catch (error) {
+                chatContainer.innerHTML += `<div class="message bot"><b>Bot:</b> Error getting response.</div>`;
+            }
+        });
+    </script>
+
+</body>
+</html>
